@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Budget Tracker</h1>
+    <p class="subtitle">Type your income, set a budget, add expenses.</p>
+
+    <div class="card">
+      <h2>Setup</h2>
+
+      <label for="income">Income</label>
+      <input id="income" type="text" placeholder="$500" />
+
+      <label for="budget">Budget</label>
+      <input id="budget" type="text" placeholder="$250" />
+
+      <button id="applyBtn">Apply</button>
+
+      <div class="summary">
+        <div>
+          <p>Spent</p>
+          <h3 id="spent">$0.00</h3>
+        </div>
+        <div>
+          <p>Remaining</p>
+          <h3 id="remaining">$0.00</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Add Expense</h2>
+
+      <label for="desc">Description</label>
+      <input id="desc" type="text" placeholder="Gas, Food, Coffee..." />
+
+      <label for="amount">Amount</label>
+      <input id="amount" type="text" placeholder="$20" />
+
+      <button id="addBtn">Add Expense</button>
+
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2>Expenses</h2>
+        <button id="clearBtn" class="ghost">Clear All</button>
+      </div>
+
+      <p id="emptyMsg" class="empty">No expenses yet.</p>
+      <ul id="list"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
