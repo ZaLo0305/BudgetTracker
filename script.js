@@ -47,12 +47,6 @@ function totalIncome() {
   return incomeList.reduce((sum, i) => sum + i, 0);
 }
 
-const remaining = base - spent;
-remainingEl.textContent = money(remaining);
-
-remainingEl.classList.toggle("negative", remaining < 0);
-
-
 
 function getPeriodKey() {
   const date = new Date(startInput.value);
@@ -108,8 +102,12 @@ function updateUI() {
   const spent = totalSpent();
   spentEl.textContent = money(spent);
 
-  const base = budget > 0 ? budget : totalIncome();
-  remainingEl.textContent = money(base - spent);
+const base = budget > 0 ? budget : totalIncome();
+const remaining = base - spent;
+
+remainingEl.textContent = money(remaining);
+remainingEl.classList.toggle("negative", remaining < 0);
+
 
 // Update income list
 incomeListEl.innerHTML = "";
