@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Budgets</title>
+  <style>
+    body { font-family: Arial; margin: 30px; background: #f4f6fb; }
+    h1 { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Saved Budgets</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Income</th>
+        <th>Budget</th>
+        <th>Expenses</th>
+        <th>Spent</th>
+        <th>Remaining</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <script>
+    const tbody = document.getElementById("tbody");
+    const data = JSON.parse(localStorage.getItem("budgetData") || "{}");
+
+    Object.keys(data).sort().forEach(month => {
+      const { income, budget, expenses } = data[month];
+      const spent = expenses.reduce((sum, e) => sum + e.amount, 0);
+      const remaining = (budget || income) - spent;
+      const expensesList = expenses.map(e => `${e.desc} (${e.amount})`).join(", ");
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${month}</td>
+        <td>$${income.toFixed(2)}</td>
+        <td>$${budget.toFixed(2)}</td>
+        <td>${expensesList || "-"}</td>
+        <td>$${spent.toFixed(2)}</td>
+        <td>$${remaining.toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  </script>
+</body>
+</html>
