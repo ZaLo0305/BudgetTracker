@@ -5,6 +5,10 @@ const applyBudgetBtn = document.getElementById("applyBudgetBtn");
 
 const incomeTotalEl = document.getElementById("incomeTotal");
 
+const incomeListEl = document.getElementById("incomeList");
+const incomeEmptyMsg = document.getElementById("incomeEmptyMsg");
+
+
 const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
 const addBtn = document.getElementById("addBtn");
@@ -94,6 +98,25 @@ function updateUI() {
   const base = budget > 0 ? budget : totalIncome();
   remainingEl.textContent = money(base - spent);
 
+// Update income list
+incomeListEl.innerHTML = "";
+
+if (incomeList.length === 0) {
+  incomeEmptyMsg.style.display = "block";
+} else {
+  incomeEmptyMsg.style.display = "none";
+  incomeList.forEach((amt, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span>Income</span>
+      <strong>${money(amt)}</strong>
+      <button class="del-income" data-i="${i}">Delete</button>
+    `;
+    incomeListEl.appendChild(li);
+  });
+}
+
+
 
   // Update expense list
   listEl.innerHTML = "";
@@ -166,6 +189,18 @@ listEl.addEventListener("click", (e) => {
   savePeriod();
   updateUI();
 });
+
+incomeListEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("button.del-income");
+  if (!btn) return;
+
+  const i = Number(btn.dataset.i);
+  incomeList.splice(i, 1);
+
+  savePeriod();
+  updateUI();
+});
+
 
 // Clear all expenses
 clearBtn.addEventListener("click", () => {
