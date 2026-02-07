@@ -68,7 +68,14 @@ function loadPeriod() {
   const data = loadData();
   const period = data[key] || { income: 0, budget: 0, expenses: [] };
 
-  incomeList = period.income || [];
+if (Array.isArray(period.income)) {
+  incomeList = period.income;
+} else if (typeof period.income === "number") {
+  incomeList = [period.income]; // convert old data
+} else {
+  incomeList = [];
+}
+
   budget = period.budget || 0;
   expenses = period.expenses || [];
 
