@@ -17,6 +17,108 @@ let income = 0;
 let budget = 0;
 let expenses = []; // { desc, amount }
 
+let data = {
+  "2026-02": {
+    income: 500,
+    budget: 250,
+    expenses: [
+      { desc: "Gas", amount: 20 },
+      { desc: "Coffee", amount: 5 }
+    ]
+  },
+  "2026-01": {
+    income: 400,
+    budget: 200,
+    expenses: []
+  }
+};
+
+
+const startInput = document.getElementById("start");
+
+function getPeriodKey() {
+  const date = new Date(startInput.value);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${year}-${month}`; // e.g., "2026-02"
+}
+
+function loadData() {
+  const stored = JSON.parse(localStorage.getItem("budgetData") || "{}");
+  return stored;
+}
+
+function saveData(data) {
+  localStorage.setItem("budgetData", JSON.stringify(data));
+}
+
+function loadPeriod() {
+  const key = getPeriodKey();
+  const data = loadData();
+  const period = data[key] || { income: 0, budget: 0, expenses: [] };
+  
+  income = period.income;
+  budget = period.budget;
+  expenses = period.expenses;
+
+  incomeInput.value = income || "";
+  budgetInput.value = budget || "";
+
+  updateUI();
+}
+
+function savePeriod() {
+  const key = getPeriodKey();
+  const dataStore = loadData();
+  dataStore[key] = { income, budget, expenses };
+  saveData(dataStore);
+}
+
+// call loadPeriod whenever the date changes
+startInput.addEventListener("change", loadPeriod);
+
+// also call savePeriod whenever you make changes
+applyBtn.addEventListener("click", () => {
+  income = parseMoney(incomeInput.value);
+  budget = parseMoney(budgetInput.value);
+  savePeriod();
+  updateUI();
+});
+
+addBtn.addEventListener("click", () => {
+  const desc = descInput.value.trim();
+  const amt = parseMoney(amountInput.value);
+
+  if (!desc) return alert("Please enter a description.");
+  if (amt <= 0) return alert("Please enter an amount greater than 0.");
+
+  expenses.push({ desc, amount: amt });
+
+  descInput.value = "";
+  amountInput.value = "";
+
+  savePeriod();
+  updateUI();
+});
+
+listEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("button.del");
+  if (!btn) return;
+  const i = Number(btn.dataset.i);
+  expenses.splice(i, 1);
+  savePeriod();
+  updateUI();
+});
+
+clearBtn.addEventListener("click", () => {
+  expenses = [];
+  savePeriod();
+  updateUI();
+});
+
+// initialize
+loadPeriod();
+
 
 function parseMoney(text) {
   // allows "$500", "500", "500.25", " $  500 "
@@ -94,6 +196,9 @@ clearBtn.addEventListener("click", () => {
   expenses = [];
   updateUI();
 });
+
+
+
 
 // start
 updateUI();
