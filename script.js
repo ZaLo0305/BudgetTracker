@@ -88,7 +88,7 @@ function updateUI() {
   const spent = totalSpent();
   spentEl.textContent = money(spent);
 
-  const base = budget > 0 ? budget : income;
+  const base = budget > 0 ? budget : totalIncome();
   remainingEl.textContent = money(base - spent);
 
   // Update expense list
@@ -126,6 +126,14 @@ addIncomeBtn.addEventListener("click", () => {
   savePeriod();
   updateUI();
 });
+
+
+applyBudgetBtn.addEventListener("click", () => {
+  budget = parseMoney(budgetInput.value);
+  savePeriod();
+  updateUI();
+});
+
 
 
 // Add expense
