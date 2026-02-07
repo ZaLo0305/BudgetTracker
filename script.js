@@ -1,6 +1,8 @@
 const incomeInput = document.getElementById("income");
 const budgetInput = document.getElementById("budget");
-const applyBtn = document.getElementById("applyBtn");
+const addIncomeBtn = document.getElementById("addIncomeBtn");
+const applyBudgetBtn = document.getElementById("applyBudgetBtn");
+
 
 const descInput = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
