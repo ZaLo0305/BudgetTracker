@@ -118,3 +118,17 @@ li {
   font-weight: bold;
 }
 
+.month-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.month-btn:hover {
+  background: #f0f0f0;
+}
+
