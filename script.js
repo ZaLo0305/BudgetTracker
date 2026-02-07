@@ -13,28 +13,28 @@ const listEl = document.getElementById("list");
 const emptyMsg = document.getElementById("emptyMsg");
 const clearBtn = document.getElementById("clearBtn");
 
+const startInput = document.getElementById("start");
+
+// Current month’s data
 let income = 0;
 let budget = 0;
 let expenses = []; // { desc, amount }
 
-let data = {
-  "2026-02": {
-    income: 500,
-    budget: 250,
-    expenses: [
-      { desc: "Gas", amount: 20 },
-      { desc: "Coffee", amount: 5 }
-    ]
-  },
-  "2026-01": {
-    income: 400,
-    budget: 200,
-    expenses: []
-  }
-};
+// -------- Helper functions --------
 
+function parseMoney(text) {
+  const cleaned = String(text).replace(/[^0-9.]/g, "");
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? num : 0;
+}
 
-const startInput = document.getElementById("start");
+function money(n) {
+  return n.toLocaleString(undefined, { style: "currency", currency: "USD" });
+}
+
+function totalSpent() {
+  return expenses.reduce((sum, e) => sum + e.amount, 0);
+}
 
 function getPeriodKey() {
   const date = new Date(startInput.value);
@@ -44,8 +44,7 @@ function getPeriodKey() {
 }
 
 function loadData() {
-  const stored = JSON.parse(localStorage.getItem("budgetData") || "{}");
-  return stored;
+  return JSON.parse(localStorage.getItem("budgetData") || "{}");
 }
 
 function saveData(data) {
@@ -56,7 +55,7 @@ function loadPeriod() {
   const key = getPeriodKey();
   const data = loadData();
   const period = data[key] || { income: 0, budget: 0, expenses: [] };
-  
+
   income = period.income;
   budget = period.budget;
   expenses = period.expenses;
@@ -74,79 +73,16 @@ function savePeriod() {
   saveData(dataStore);
 }
 
-// call loadPeriod whenever the date changes
-startInput.addEventListener("change", loadPeriod);
-
-// also call savePeriod whenever you make changes
-applyBtn.addEventListener("click", () => {
-  income = parseMoney(incomeInput.value);
-  budget = parseMoney(budgetInput.value);
-  savePeriod();
-  updateUI();
-});
-
-addBtn.addEventListener("click", () => {
-  const desc = descInput.value.trim();
-  const amt = parseMoney(amountInput.value);
-
-  if (!desc) return alert("Please enter a description.");
-  if (amt <= 0) return alert("Please enter an amount greater than 0.");
-
-  expenses.push({ desc, amount: amt });
-
-  descInput.value = "";
-  amountInput.value = "";
-
-  savePeriod();
-  updateUI();
-});
-
-listEl.addEventListener("click", (e) => {
-  const btn = e.target.closest("button.del");
-  if (!btn) return;
-  const i = Number(btn.dataset.i);
-  expenses.splice(i, 1);
-  savePeriod();
-  updateUI();
-});
-
-clearBtn.addEventListener("click", () => {
-  expenses = [];
-  savePeriod();
-  updateUI();
-});
-
-// initialize
-loadPeriod();
-
-
-function parseMoney(text) {
-  // allows "$500", "500", "500.25", " $  500 "
-  const cleaned = String(text).replace(/[^0-9.]/g, "");
-  const num = Number(cleaned);
-  return Number.isFinite(num) ? num : 0;
-}
-
-function money(n) {
-  return n.toLocaleString(undefined, { style: "currency", currency: "USD" });
-}
-
-function totalSpent() {
-  return expenses.reduce((sum, e) => sum + e.amount, 0);
-}
+// -------- Update UI --------
 
 function updateUI() {
   const spent = totalSpent();
-
   spentEl.textContent = money(spent);
 
-  // Remaining is based on BUDGET first. If budget is 0, use income.
   const base = budget > 0 ? budget : income;
-  const remaining = base - spent;
+  remainingEl.textContent = money(base - spent);
 
-  remainingEl.textContent = money(remaining);
-
-  // list
+  // Update expense list
   listEl.innerHTML = "";
   if (expenses.length === 0) {
     emptyMsg.style.display = "block";
@@ -164,12 +100,20 @@ function updateUI() {
   }
 }
 
+// -------- Event listeners --------
+
+// Change month
+startInput.addEventListener("change", loadPeriod);
+
+// Apply income/budget
 applyBtn.addEventListener("click", () => {
   income = parseMoney(incomeInput.value);
   budget = parseMoney(budgetInput.value);
+  savePeriod();
   updateUI();
 });
 
+// Add expense
 addBtn.addEventListener("click", () => {
   const desc = descInput.value.trim();
   const amt = parseMoney(amountInput.value);
@@ -181,24 +125,28 @@ addBtn.addEventListener("click", () => {
 
   descInput.value = "";
   amountInput.value = "";
+
+  savePeriod();
   updateUI();
 });
 
+// Delete expense
 listEl.addEventListener("click", (e) => {
   const btn = e.target.closest("button.del");
   if (!btn) return;
   const i = Number(btn.dataset.i);
   expenses.splice(i, 1);
+  savePeriod();
   updateUI();
 });
 
+// Clear all expenses
 clearBtn.addEventListener("click", () => {
+  if (!confirm("Are you sure you want to clear all expenses for this month?")) return;
   expenses = [];
+  savePeriod();
   updateUI();
 });
 
-
-
-
-// start
-updateUI();
+// -------- Initialize --------
+loadPeriod();
