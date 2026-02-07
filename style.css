@@ -88,6 +88,10 @@ button:hover { opacity: 0.9; }
   padding: 8px 12px;
 }
 
+input[type="month"] {
+  max-width: 220px;
+}
+
 .empty { color: #777; font-style: italic; margin: 10px 0 0; }
 
 ul { list-style: none; padding: 0; margin: 12px 0 0; }
