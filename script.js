@@ -16,7 +16,7 @@ const clearBtn = document.getElementById("clearBtn");
 const startInput = document.getElementById("start");
 
 // Current month’s data
-let income = 0;
+let incomeList = [];
 let budget = 0;
 let expenses = []; // { desc, amount }
 
@@ -35,6 +35,11 @@ function money(n) {
 function totalSpent() {
   return expenses.reduce((sum, e) => sum + e.amount, 0);
 }
+
+function totalIncome() {
+  return incomeList.reduce((sum, i) => sum + i, 0);
+}
+
 
 function getPeriodKey() {
   const date = new Date(startInput.value);
