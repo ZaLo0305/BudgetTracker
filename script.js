@@ -128,10 +128,16 @@ createMonthBtn.addEventListener("click", () => {
   if (!data[value]) {
     data[value] = { income: [], budget: 0, expenses: [] };
     saveData(data);
+    renderMonthDashboard();
   }
 
-  renderMonthDashboard();
+  // auto-open the month after creating
+  startInput.value = value;
+  monthScreen.style.display = "none";
+  budgetScreen.style.display = "block";
+  loadPeriod();
 });
+
 
 monthListEl.addEventListener("click", (e) => {
   const btn = e.target.closest(".month-btn");
