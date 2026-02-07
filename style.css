@@ -112,3 +112,9 @@ li {
   color: #b10000;
   padding: 8px 10px;
 }
+
+.negative {
+  color: #b10000;
+  font-weight: bold;
+}
+
