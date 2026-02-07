@@ -17,6 +17,7 @@ let income = 0;
 let budget = 0;
 let expenses = []; // { desc, amount }
 
+
 function parseMoney(text) {
   // allows "$500", "500", "500.25", " $  500 "
   const cleaned = String(text).replace(/[^0-9.]/g, "");
