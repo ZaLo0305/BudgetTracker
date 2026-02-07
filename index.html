@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -7,12 +8,38 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Budget Tracker</h1>
-    <p class="subtitle">Type your income, set a budget, add expenses.</p>
 
-    
-    <div class="card">
+  <!-- MONTH DASHBOARD SCREEN -->
+
+  <div id="monthScreen" class="container">
+    <h1>Budget Tracker</h1>
+    <p class="subtitle">Select or create a month</p>
+
+```
+<div class="card">
+  <label>Select month</label>
+  <input type="month" id="newMonthPicker">
+  <button id="createMonthBtn">Create Month</button>
+</div>
+
+<div class="card">
+  <h2>Your Months</h2>
+  <ul id="monthList"></ul>
+</div>
+```
+
+  </div>
+
+  <!-- BUDGET SCREEN -->
+
+  <div id="budgetScreen" class="container" style="display:none;">
+
+```
+<h1>Budget Tracker</h1>
+<p class="subtitle">Track income, budget, and expenses.</p>
+
+<!-- SETUP CARD -->
+<div class="card">
   <h2>Setup</h2>
 
   <label for="income">Add Income</label>
@@ -39,50 +66,51 @@
   </div>
 </div>
 
+<!-- ADD EXPENSE CARD -->
+<div class="card">
+  <h2>Add Expense</h2>
 
+  <label for="desc">Description</label>
+  <input id="desc" type="text" placeholder="Gas, Food, Coffee..." />
 
-    <div class="card">
-      <h2>Add Expense</h2>
+  <label for="amount">Amount</label>
+  <input id="amount" type="text" placeholder="$20" />
 
-      <label for="desc">Description</label>
-      <input id="desc" type="text" placeholder="Gas, Food, Coffee..." />
+  <button id="addBtn">Add Expense</button>
+</div>
 
-      <label for="amount">Amount</label>
-      <input id="amount" type="text" placeholder="$20" />
-
-      <button id="addBtn">Add Expense</button>
-
-    </div>
-
-
-    <div class="card">
-    <div class="row">
-      <h2>Income</h2>
+<!-- INCOME HISTORY -->
+<div class="card">
+  <div class="row">
+    <h2>Income</h2>
   </div>
+
   <p id="incomeEmptyMsg" class="empty">No income yet.</p>
   <ul id="incomeList"></ul>
 </div>
 
-    <div class="card">
-      <div class="row">
-        <h2>Expenses</h2>
-        <button id="clearBtn" class="ghost">Clear All</button>
-      </div>
+<!-- EXPENSE HISTORY -->
+<div class="card">
+  <div class="row">
+    <h2>Expenses</h2>
+    <button id="clearBtn" class="ghost">Clear All</button>
+  </div>
 
-      <p id="emptyMsg" class="empty">No expenses yet.</p>
-      <ul id="list"></ul>
-    </div>
-
-
-    <div class="card">
-      <h2>Month</h2>
-      <input type="month" id="start" value="2026-02">
-      <button onclick="window.open('view.html', '_blank')">View Saved Budgets</button>
-    </div>
-
-
+  <p id="emptyMsg" class="empty">No expenses yet.</p>
+  <ul id="list"></ul>
 </div>
+
+<!-- MONTH CONTROL -->
+<div class="card">
+  <h2>Month</h2>
+  <input type="month" id="start">
+  <button onclick="window.open('view.html', '_blank')">View Saved Budgets</button>
+</div>
+```
+
+  </div>
+
   <script src="script.js"></script>
+
 </body>
 </html>
-
