@@ -1,3 +1,11 @@
+const monthScreen = document.getElementById("monthScreen");
+const budgetScreen = document.getElementById("budgetScreen");
+
+const newMonthPicker = document.getElementById("newMonthPicker");
+const createMonthBtn = document.getElementById("createMonthBtn");
+const monthListEl = document.getElementById("monthList");
+
+
 const incomeInput = document.getElementById("income");
 const budgetInput = document.getElementById("budget");
 const addIncomeBtn = document.getElementById("addIncomeBtn");
@@ -93,6 +101,52 @@ function savePeriod() {
 
   saveData(dataStore);
 }
+
+function renderMonthDashboard() {
+  const data = loadData();
+  monthListEl.innerHTML = "";
+
+  Object.keys(data).sort().forEach(key => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <button class="month-btn" data-key="${key}">
+        ${key}
+      </button>
+    `;
+
+    monthListEl.appendChild(li);
+  });
+}
+
+createMonthBtn.addEventListener("click", () => {
+  const value = newMonthPicker.value;
+  if (!value) return alert("Select a month first.");
+
+  const data = loadData();
+
+  if (!data[value]) {
+    data[value] = { income: [], budget: 0, expenses: [] };
+    saveData(data);
+  }
+
+  renderMonthDashboard();
+});
+
+monthListEl.addEventListener("click", (e) => {
+  const btn = e.target.closest(".month-btn");
+  if (!btn) return;
+
+  const key = btn.dataset.key;
+
+  startInput.value = key;
+
+  monthScreen.style.display = "none";
+  budgetScreen.style.display = "block";
+
+  loadPeriod();
+});
+
 
 // -------- Update UI --------
 
@@ -222,4 +276,5 @@ clearBtn.addEventListener("click", () => {
 });
 
 // -------- Initialize --------
-loadPeriod();
+renderMonthDashboard();
+
