@@ -63,12 +63,13 @@ function loadPeriod() {
   const data = loadData();
   const period = data[key] || { income: 0, budget: 0, expenses: [] };
 
-  income = period.income;
-  budget = period.budget;
-  expenses = period.expenses;
+  incomeList = period.income || [];
+  budget = period.budget || 0;
+  expenses = period.expenses || [];
 
-  incomeInput.value = income || "";
+  incomeInput.value = "";
   budgetInput.value = budget || "";
+
 
   updateUI();
 }
