@@ -77,7 +77,8 @@ function loadPeriod() {
 function savePeriod() {
   const key = getPeriodKey();
   const dataStore = loadData();
-  dataStore[key] = { income, budget, expenses };
+  dataStore[key] = { income: incomeList, budget, expenses };
+
   saveData(dataStore);
 }
 
@@ -114,12 +115,18 @@ function updateUI() {
 startInput.addEventListener("change", loadPeriod);
 
 // Apply income/budget
-applyBtn.addEventListener("click", () => {
-  income = parseMoney(incomeInput.value);
-  budget = parseMoney(budgetInput.value);
+addIncomeBtn.addEventListener("click", () => {
+  const amt = parseMoney(incomeInput.value);
+
+  if (amt <= 0) return alert("Enter a valid income amount.");
+
+  incomeList.push(amt);
+  incomeInput.value = "";
+
   savePeriod();
   updateUI();
 });
+
 
 // Add expense
 addBtn.addEventListener("click", () => {
