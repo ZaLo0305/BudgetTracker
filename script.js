@@ -52,7 +52,7 @@ function totalSpent() {
 }
 
 function totalIncome() {
-  return incomeList.reduce((sum, i) => sum + i, 0);
+  return incomeList.reduce((sum, i) => sum + i.amount, 0);
 }
 
 
