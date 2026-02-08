@@ -117,17 +117,36 @@ function renderMonthDashboard() {
   monthListEl.innerHTML = "";
 
   Object.keys(data).sort().forEach(key => {
+    const monthData = data[key];
+
+    const totalIncome = (monthData.income || []).reduce((s, i) => {
+      if (typeof i === "number") return s + i;
+      return s + (i.amount || 0);
+    }, 0);
+
+    const totalSpent = (monthData.expenses || []).reduce((s, e) => s + e.amount, 0);
+
+    const date = new Date(key + "-01");
+    const label = date.toLocaleString(undefined, {
+      month: "long",
+      year: "numeric"
+    });
+
     const li = document.createElement("li");
 
     li.innerHTML = `
       <button class="month-btn" data-key="${key}">
-        ${key}
+        <div class="month-title">${label}</div>
+        <div class="month-stats">
+          Income: ${money(totalIncome)} • Spent: ${money(totalSpent)}
+        </div>
       </button>
     `;
 
     monthListEl.appendChild(li);
   });
 }
+
 
 createMonthBtn.addEventListener("click", () => {
   const value = newMonthPicker.value;
