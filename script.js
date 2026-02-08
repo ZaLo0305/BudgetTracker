@@ -131,11 +131,10 @@ createMonthBtn.addEventListener("click", () => {
     renderMonthDashboard();
   }
 
-  // auto-open the month after creating
-  startInput.value = value;
-  monthScreen.style.display = "none";
-  budgetScreen.style.display = "block";
-  loadPeriod();
+
+  // just refresh dashboard list
+renderMonthDashboard();
+
 });
 
 
