@@ -1,11 +1,13 @@
-body {
+body 
+{
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f4f6fb;
   color: #111;
 }
 
-.container {
+.container 
+{
   max-width: 720px;
   margin: 40px auto;
   padding: 0 15px;
@@ -14,7 +16,8 @@ body {
 h1 { margin: 0 0 6px; }
 .subtitle { margin: 0 0 20px; color: #666; }
 
-.card {
+.card 
+{
   background: #fff;
   padding: 20px;
   border-radius: 12px;
@@ -22,14 +25,16 @@ h1 { margin: 0 0 6px; }
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-label {
+label 
+{
   display: block;
   margin-top: 10px;
   font-size: 14px;
   color: #555;
 }
 
-input {
+input 
+{
   width: 100%;
   padding: 10px;
   margin-top: 6px;
@@ -38,7 +43,8 @@ input {
   font-size: 14px;
 }
 
-button {
+button 
+{
   width: 100%;
   margin-top: 12px;
   padding: 10px;
@@ -52,7 +58,8 @@ button {
 
 button:hover { opacity: 0.9; }
 
-.summary {
+.summary 
+{
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -60,7 +67,8 @@ button:hover { opacity: 0.9; }
   margin-top: 16px;
 }
 
-.summary > div {
+.summary > div 
+{
   flex: 1;
   border: 1px solid #eee;
   border-radius: 10px;
@@ -73,14 +81,16 @@ button:hover { opacity: 0.9; }
 
 .note { color: #666; font-size: 13px; margin-top: 10px; }
 
-.row {
+.row 
+{
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
 
-.ghost {
+.ghost 
+{
   width: auto;
   margin-top: 0;
   background: #eee;
@@ -88,7 +98,8 @@ button:hover { opacity: 0.9; }
   padding: 8px 12px;
 }
 
-input[type="month"] {
+input[type="month"] 
+{
   max-width: 220px;
 }
 
@@ -96,7 +107,8 @@ input[type="month"] {
 
 ul { list-style: none; padding: 0; margin: 12px 0 0; }
 
-li {
+li 
+{
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: 10px;
@@ -105,7 +117,8 @@ li {
   border-bottom: 1px solid #eee;
 }
 
-.del {
+.del 
+{
   width: auto;
   margin-top: 0;
   background: #ffecec;
@@ -113,12 +126,14 @@ li {
   padding: 8px 10px;
 }
 
-.negative {
+.negative 
+{
   color: #b10000;
   font-weight: bold;
 }
 
-.month-btn {
+.month-btn 
+{
   width: 100%;
   padding: 14px;
   border-radius: 10px;
@@ -132,19 +147,22 @@ li {
 }
 
 /* hover effect */
-.month-btn:hover {
+.month-btn:hover 
+{
   background: #000;
   transform: translateY(-1px);
 }
 
 /* active click */
-.month-btn:active {
+.month-btn:active 
+{
   transform: translateY(0px);
   opacity: 0.9;
 }
 
 
-.month-btn:hover {
+.month-btn:hover 
+{
   background: #f0f0f0;
 }
 
