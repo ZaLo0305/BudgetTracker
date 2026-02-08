@@ -80,12 +80,19 @@ function loadPeriod() {
   const period = data[key] || { income: 0, budget: 0, expenses: [] };
 
 if (Array.isArray(period.income)) {
-  incomeList = period.income;
+  // convert any old numeric income into new object format
+  incomeList = period.income.map(i => {
+    if (typeof i === "number") {
+      return { source: "Income", amount: i };
+    }
+    return i;
+  });
 } else if (typeof period.income === "number") {
-  incomeList = [period.income]; // convert old data
+  incomeList = [{ source: "Income", amount: period.income }];
 } else {
   incomeList = [];
 }
+
 
   budget = period.budget || 0;
   expenses = period.expenses || [];
