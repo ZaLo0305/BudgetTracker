@@ -55,8 +55,12 @@ function totalSpent() {
 }
 
 function totalIncome() {
-  return incomeList.reduce((sum, i) => sum + i.amount, 0);
+  return incomeList.reduce((sum, i) => {
+    if (typeof i === "number") return sum + i;
+    return sum + (i.amount || 0);
+  }, 0);
 }
+
 
 
 function getPeriodKey() {
