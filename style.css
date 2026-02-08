@@ -120,13 +120,29 @@ li {
 
 .month-btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
-  background: #0000;
+  border: none;
+  background: #111;        /* solid dark */
+  color: #fff;             /* white text */
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: bold;
+  transition: all 0.15s ease;
 }
+
+/* hover effect */
+.month-btn:hover {
+  background: #000;
+  transform: translateY(-1px);
+}
+
+/* active click */
+.month-btn:active {
+  transform: translateY(0px);
+  opacity: 0.9;
+}
+
 
 .month-btn:hover {
   background: #f0f0f0;
