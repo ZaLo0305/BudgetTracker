@@ -178,15 +178,16 @@ if (incomeList.length === 0) {
   incomeEmptyMsg.style.display = "block";
 } else {
   incomeEmptyMsg.style.display = "none";
-  incomeList.forEach((amt, i) => {
+  incomeList.forEach((inc, i) => {
     const li = document.createElement("li");
     li.innerHTML = `
-      <span>Income</span>
-      <strong>${money(amt)}</strong>
-      <button class="del-income" data-i="${i}">Delete</button>
-    `;
-    incomeListEl.appendChild(li);
-  });
+    <span>${inc.source}</span>
+    <strong>${money(inc.amount)}</strong>
+    <button class="del-income" data-i="${i}">Delete</button>
+  `;
+  incomeListEl.appendChild(li);
+});
+
 }
 
 
