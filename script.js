@@ -1,6 +1,9 @@
 const monthScreen = document.getElementById("monthScreen");
 const budgetScreen = document.getElementById("budgetScreen");
 
+const incomeSourceInput = document.getElementById("incomeSource");
+
+
 const newMonthPicker = document.getElementById("newMonthPicker");
 const createMonthBtn = document.getElementById("createMonthBtn");
 const monthListEl = document.getElementById("monthList");
@@ -217,8 +220,16 @@ addIncomeBtn.addEventListener("click", () => {
 
   if (amt <= 0) return alert("Enter a valid income amount.");
 
-  incomeList.push(amt);
+  const source = incomeSourceInput.value.trim() || "Income";
+
+  incomeList.push({
+    source: source,
+    amount: amt
+});
+
   incomeInput.value = "";
+  incomeSourceInput.value = "";
+
 
   savePeriod();
   updateUI();
