@@ -63,6 +63,7 @@ function totalIncome() {
 
 
 
+
 function getPeriodKey() {
   const date = new Date(startInput.value);
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
