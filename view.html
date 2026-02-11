@@ -32,29 +32,40 @@ const tbody = document.getElementById("tbody");
 const data = JSON.parse(localStorage.getItem("budgetData") || "{}");
 
 Object.keys(data).sort().forEach(month => {
-  const { income, budget, expenses } = data[month];
 
-  const totalIncome = (income || []).reduce((sum, i) => {
+  const monthData = data[month];
+
+  const incomeArr = monthData.income || [];
+  const expensesArr = monthData.expenses || [];
+  const budget = monthData.budget || 0;
+
+  // calculate total income (handles old + new formats)
+  const totalIncome = incomeArr.reduce((sum, i) => {
     if (typeof i === "number") return sum + i;
     return sum + (i.amount || 0);
   }, 0);
 
-  const spent = (expenses || []).reduce((sum, e) => sum + e.amount, 0);
-  const remaining = (budget || totalIncome) - spent;
+  const spent = expensesArr.reduce((sum, e) => sum + e.amount, 0);
+  const remaining = (budget > 0 ? budget : totalIncome) - spent;
 
-  const expensesList = (expenses || []).map(e => `${e.desc} ($${e.amount})`).join(", ");
+  const expensesList = expensesArr
+    .map(e => `${e.desc} ($${e.amount})`)
+    .join(", ");
 
   const tr = document.createElement("tr");
+
   tr.innerHTML = `
     <td>${month}</td>
     <td>$${totalIncome.toFixed(2)}</td>
-    <td>$${(budget || 0).toFixed(2)}</td>
+    <td>$${budget.toFixed(2)}</td>
     <td>${expensesList || "-"}</td>
     <td>$${spent.toFixed(2)}</td>
     <td>$${remaining.toFixed(2)}</td>
   `;
+
   tbody.appendChild(tr);
 });
 </script>
+
 </body>
 </html>
