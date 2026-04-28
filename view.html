@@ -1,71 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Saved Budgets</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: Arial; margin: 30px; background: #f4f6fb; }
-    h1 { margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #eee; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --accent: #1a1a2e;
+      --accent2: #e8622a;
+      --muted: #8a8a8a;
+      --border: #e8e4dc;
+      --danger: #c0392b;
+      --success: #1a7a4a;
+      --radius: 14px;
+      --shadow: 0 2px 14px rgba(0,0,0,0.07);
+    }
+
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--accent);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      letter-spacing: -0.4px;
+    }
+    .back-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .back-link:hover { background: #eee; }
+
+    /* ── TABLE CARD ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    thead {
+      background: #f7f5f0;
+      border-bottom: 2px solid var(--border);
+    }
+    th {
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #faf9f6; }
+
+    .month-col { font-weight: 600; }
+    .expenses-col {
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 240px;
+    }
+    .negative { color: var(--danger); font-weight: 600; }
+    .positive { color: var(--success); font-weight: 600; }
+
+    /* Progress mini-bar */
+    .mini-bar-wrap { margin-top: 5px; }
+    .mini-bar {
+      height: 4px;
+      border-radius: 99px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .mini-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--accent2);
+    }
+    .mini-fill.danger { background: var(--danger); }
+
+    /* Empty state */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-state p { font-size: 15px; margin-bottom: 10px; }
+    .empty-state a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .hide-mobile { display: none; }
+      td, th { padding: 10px 12px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Saved Budgets</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Month</th>
-        <th>Income</th>
-        <th>Budget</th>
-        <th>Expenses</th>
-        <th>Spent</th>
-        <th>Remaining</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<div class="container">
+
+  <div class="page-header">
+    <a href="index.html" class="back-link">← Back</a>
+    <h1>Saved Budgets</h1>
+  </div>
+
+  <div class="card">
+    <table id="budgetTable">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Income</th>
+          <th>Budget</th>
+          <th>Spent</th>
+          <th>Remaining</th>
+          <th class="hide-mobile">Expenses</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <p>No saved budgets yet.</p>
+      <a href="index.html">Start tracking →</a>
+    </div>
+  </div>
+
+</div>
 
 <script>
-const tbody = document.getElementById("tbody");
-const data = JSON.parse(localStorage.getItem("budgetData") || "{}");
+  function money(n) {
+    return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  }
 
-Object.keys(data).sort().forEach(month => {
+  function formatMonthLabel(key) {
+    const [year, month] = key.split("-");
+    const date = new Date(+year, +month - 1, 1);
+    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  }
 
-  const monthData = data[month];
+  const tbody     = document.getElementById("tbody");
+  const emptyState = document.getElementById("emptyState");
 
-  const incomeArr = monthData.income || [];
-  const expensesArr = monthData.expenses || [];
-  const budget = monthData.budget || 0;
+  let data = {};
+  try {
+    data = JSON.parse(localStorage.getItem("budgetData") || "{}");
+  } catch {}
 
-  // calculate total income (handles old + new formats)
-  const totalIncome = incomeArr.reduce((sum, i) => {
-    if (typeof i === "number") return sum + i;
-    return sum + (i.amount || 0);
-  }, 0);
+  const keys = Object.keys(data).sort();
 
-  const spent = expensesArr.reduce((sum, e) => sum + e.amount, 0);
-  const remaining = (budget > 0 ? budget : totalIncome) - spent;
+  if (keys.length === 0) {
+    document.getElementById("budgetTable").style.display = "none";
+    emptyState.style.display = "block";
+  }
 
-  const expensesList = expensesArr
-    .map(e => `${e.desc} ($${e.amount})`)
-    .join(", ");
+  keys.forEach(key => {
+    const d = data[key];
 
-  const tr = document.createElement("tr");
+    const incomeArr   = d.income || [];
+    const expensesArr = d.expenses || [];
+    const budgetAmt   = d.budget || 0;
 
-  tr.innerHTML = `
-    <td>${month}</td>
-    <td>$${totalIncome.toFixed(2)}</td>
-    <td>$${budget.toFixed(2)}</td>
-    <td>${expensesList || "-"}</td>
-    <td>$${spent.toFixed(2)}</td>
-    <td>$${remaining.toFixed(2)}</td>
-  `;
+    const totalIncome = incomeArr.reduce((sum, i) =>
+      sum + (typeof i === "number" ? i : i.amount || 0), 0);
 
-  tbody.appendChild(tr);
-});
+    const spent     = expensesArr.reduce((sum, e) => sum + e.amount, 0);
+    const base      = budgetAmt > 0 ? budgetAmt : totalIncome;
+    const remaining = base - spent;
+    const pct       = base > 0 ? Math.min((spent / base) * 100, 100) : 0;
+    const isOver    = remaining < 0;
+
+    const expensesList = expensesArr
+      .map(e => `${e.desc} (${money(e.amount)})`)
+      .join(", ") || "—";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="month-col">${formatMonthLabel(key)}</td>
+      <td>${money(totalIncome)}</td>
+      <td>${budgetAmt > 0 ? money(budgetAmt) : "<span style='color:var(--muted);font-size:12px;'>= Income</span>"}</td>
+      <td>
+        ${money(spent)}
+        <div class="mini-bar-wrap">
+          <div class="mini-bar">
+            <div class="mini-fill ${isOver ? 'danger' : ''}" style="width:${pct}%"></div>
+          </div>
+        </div>
+      </td>
+      <td class="${isOver ? 'negative' : 'positive'}">${money(remaining)}</td>
+      <td class="expenses-col hide-mobile">${expensesList}</td>
+    `;
+    tbody.appendChild(tr);
+  });
 </script>
-
 </body>
 </html>

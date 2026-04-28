@@ -1,123 +1,207 @@
-// --- Screen references ---
-const monthScreen = document.getElementById("monthScreen");
-const budgetScreen = document.getElementById("budgetScreen");
+// ── SCREEN ELEMENTS ──
+const monthScreen   = document.getElementById("monthScreen");
+const budgetScreen  = document.getElementById("budgetScreen");
 
-const newMonthPicker = document.getElementById("newMonthPicker");
-const createMonthBtn = document.getElementById("createMonthBtn");
-const monthListEl = document.getElementById("monthList");
+// Dashboard
+const newMonthPicker   = document.getElementById("newMonthPicker");
+const createMonthBtn   = document.getElementById("createMonthBtn");
+const monthListEl      = document.getElementById("monthList");
+const noMonthsMsg      = document.getElementById("noMonthsMsg");
+const backBtn          = document.getElementById("backBtn");
+const screenMonthTitle = document.getElementById("screenMonthTitle");
 
-// --- Budget inputs ---
+// Income
 const incomeSourceInput = document.getElementById("incomeSource");
-const incomeInput = document.getElementById("income");
-const budgetInput = document.getElementById("budget");
+const incomeAmountInput = document.getElementById("incomeAmount");
+const addIncomeBtn      = document.getElementById("addIncomeBtn");
+const incomeListEl      = document.getElementById("incomeList");
+const incomeEmptyMsg    = document.getElementById("incomeEmptyMsg");
+const incomeTotalEl     = document.getElementById("incomeTotal");
 
-const addIncomeBtn = document.getElementById("addIncomeBtn");
+// Budget
+const budgetInput    = document.getElementById("budgetInput");
 const applyBudgetBtn = document.getElementById("applyBudgetBtn");
+const budgetDisplay  = document.getElementById("budgetDisplay");
 
-const incomeTotalEl = document.getElementById("incomeTotal");
-const incomeListEl = document.getElementById("incomeList");
-const incomeEmptyMsg = document.getElementById("incomeEmptyMsg");
-
-const descInput = document.getElementById("desc");
+// Expenses
+const descInput  = document.getElementById("desc");
 const amountInput = document.getElementById("amount");
-const addBtn = document.getElementById("addBtn");
+const addBtn     = document.getElementById("addBtn");
+const listEl     = document.getElementById("list");
+const emptyMsg   = document.getElementById("emptyMsg");
+const clearBtn   = document.getElementById("clearBtn");
 
-const spentEl = document.getElementById("spent");
-const remainingEl = document.getElementById("remaining");
+// Summary
+const spentEl       = document.getElementById("spent");
+const remainingEl   = document.getElementById("remaining");
+const progressFill  = document.getElementById("progressFill");
+const progressLabel = document.getElementById("progressLabel");
 
-const listEl = document.getElementById("list");
-const emptyMsg = document.getElementById("emptyMsg");
-const clearBtn = document.getElementById("clearBtn");
+// Hidden month key
+const currentMonthKey = document.getElementById("currentMonthKey");
 
-const startInput = document.getElementById("start");
-
-// --- Data ---
+// ── STATE ──
 let incomeList = [];
-let budget = 0;
-let expenses = [];
+let budget     = 0;
+let expenses   = [];
 
-// --- Helpers ---
+// ── HELPERS ──
 function parseMoney(text) {
   const cleaned = String(text).replace(/[^0-9.]/g, "");
-  const num = Number(cleaned);
-  return Number.isFinite(num) ? num : 0;
+  const num = parseFloat(cleaned);
+  return isFinite(num) && num > 0 ? num : 0;
 }
 
 function money(n) {
-  return n.toLocaleString(undefined, { style: "currency", currency: "USD" });
-}
-
-function totalSpent() {
-  return expenses.reduce((sum, e) => sum + e.amount, 0);
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
 function totalIncome() {
   return incomeList.reduce((sum, i) => sum + (i.amount || 0), 0);
 }
 
-function getPeriodKey() {
-  return startInput.value;
+function totalSpent() {
+  return expenses.reduce((sum, e) => sum + e.amount, 0);
 }
 
+function getMonthKey() {
+  return currentMonthKey.value;
+}
+
+function formatMonthLabel(key) {
+  if (!key) return "";
+  const [year, month] = key.split("-");
+  const date = new Date(+year, +month - 1, 1);
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+// ── STORAGE ──
 function loadData() {
-  return JSON.parse(localStorage.getItem("budgetData") || "{}");
+  try {
+    return JSON.parse(localStorage.getItem("budgetData") || "{}");
+  } catch {
+    return {};
+  }
 }
 
 function saveData(data) {
   localStorage.setItem("budgetData", JSON.stringify(data));
 }
 
-// --- Load Month ---
+// ── LOAD / SAVE PERIOD ──
 function loadPeriod() {
-  const key = getPeriodKey();
+  const key = getMonthKey();
   const data = loadData();
   const period = data[key] || { income: [], budget: 0, expenses: [] };
 
-  incomeList = period.income || [];
-  budget = period.budget || 0;
+  // Normalize income entries (support old plain-number format)
+  incomeList = (period.income || []).map(i =>
+    typeof i === "number" ? { source: "Income", amount: i } : i
+  );
+  budget   = period.budget || 0;
   expenses = period.expenses || [];
 
   updateUI();
 }
 
-// --- Save Month ---
 function savePeriod() {
-  const key = getPeriodKey();
+  const key = getMonthKey();
+  if (!key) return;
   const data = loadData();
   data[key] = { income: incomeList, budget, expenses };
   saveData(data);
 }
 
-// --- Dashboard ---
-function renderMonthDashboard() {
+// ── DASHBOARD ──
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(name + "Screen").classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function renderDashboard() {
   const data = loadData();
+  const keys = Object.keys(data).sort();
+
   monthListEl.innerHTML = "";
+  noMonthsMsg.style.display = keys.length === 0 ? "block" : "none";
 
-  Object.keys(data).sort().forEach(key => {
-    const monthData = data[key];
-
-    const totalIncome = (monthData.income || []).reduce((s, i) => s + (i.amount || 0), 0);
-    const totalSpent = (monthData.expenses || []).reduce((s, e) => s + e.amount, 0);
+  keys.forEach(key => {
+    const d = data[key];
+    const inc   = (d.income || []).reduce((s, i) => s + (typeof i === "number" ? i : i.amount || 0), 0);
+    const spent = (d.expenses || []).reduce((s, e) => s + e.amount, 0);
 
     const li = document.createElement("li");
     li.innerHTML = `
-      <button class="month-btn" data-key="${key}">
-        <div class="month-title">${key}</div>
-        <div class="month-stats">
-          Income: ${money(totalIncome)} • Spent: ${money(totalSpent)}
-        </div>
+      <button class="month-card-btn" data-key="${key}">
+        <span class="month-card-title">${formatMonthLabel(key)}</span>
+        <span class="month-card-stats">Income: ${money(inc)} &nbsp;•&nbsp; Spent: ${money(spent)}</span>
       </button>
-      <button class="delete-month" data-delete="${key}">Delete</button>
+      <button class="month-delete-btn" data-delete="${key}" title="Delete month">✕</button>
     `;
-
     monthListEl.appendChild(li);
   });
 }
 
-// --- Create Month ---
+// ── UPDATE UI ──
+function updateUI() {
+  const inc     = totalIncome();
+  const spent   = totalSpent();
+  const base    = budget > 0 ? budget : inc;
+  const remaining = base - spent;
+  const pct     = base > 0 ? Math.min((spent / base) * 100, 100) : 0;
+
+  incomeTotalEl.textContent = money(inc);
+  budgetDisplay.textContent = budget > 0 ? money(budget) : money(inc);
+  spentEl.textContent       = money(spent);
+  remainingEl.textContent   = money(remaining);
+  remainingEl.className     = "summary-value " + (remaining < 0 ? "negative" : remaining === 0 ? "" : "positive");
+
+  // Progress bar
+  progressFill.style.width = pct + "%";
+  progressFill.classList.toggle("danger", remaining < 0);
+  progressLabel.textContent = Math.round(pct) + "% used";
+
+  // Income list
+  incomeListEl.innerHTML = "";
+  incomeEmptyMsg.style.display = incomeList.length === 0 ? "block" : "none";
+  incomeList.forEach((inc, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span class="item-desc">${escHtml(inc.source)}</span>
+      <strong class="item-amount">${money(inc.amount)}</strong>
+      <button class="item-delete" data-type="income" data-i="${i}">Delete</button>
+    `;
+    incomeListEl.appendChild(li);
+  });
+
+  // Expense list
+  listEl.innerHTML = "";
+  emptyMsg.style.display = expenses.length === 0 ? "block" : "none";
+  expenses.forEach((e, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span class="item-desc">${escHtml(e.desc)}</span>
+      <strong class="item-amount">${money(e.amount)}</strong>
+      <button class="item-delete" data-type="expense" data-i="${i}">Delete</button>
+    `;
+    listEl.appendChild(li);
+  });
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ── EVENTS: DASHBOARD ──
+
 createMonthBtn.addEventListener("click", () => {
   const value = newMonthPicker.value;
-  if (!value) return alert("Select a month first.");
+  if (!value) return alert("Please select a month first.");
 
   const data = loadData();
   if (!data[value]) {
@@ -125,142 +209,122 @@ createMonthBtn.addEventListener("click", () => {
     saveData(data);
   }
 
-  renderMonthDashboard();
+  renderDashboard();
+  newMonthPicker.value = "";
 });
 
-// --- Open Month ---
-monthListEl.addEventListener("click", (e) => {
-
-  if (e.target.matches("[data-delete]")) {
-    const key = e.target.dataset.delete;
-    if (!confirm("Delete this month?")) return;
-
+monthListEl.addEventListener("click", e => {
+  // Delete month
+  const delBtn = e.target.closest("[data-delete]");
+  if (delBtn) {
+    const key = delBtn.dataset.delete;
+    if (!confirm(`Delete ${formatMonthLabel(key)}? This cannot be undone.`)) return;
     const data = loadData();
     delete data[key];
     saveData(data);
-    renderMonthDashboard();
+    renderDashboard();
     return;
   }
 
-  const btn = e.target.closest(".month-btn");
-  if (!btn) return;
+  // Open month
+  const openBtn = e.target.closest("[data-key]");
+  if (!openBtn) return;
 
-  const key = btn.dataset.key;
-  startInput.value = key;
-
-  monthScreen.style.display = "none";
-  budgetScreen.style.display = "block";
+  const key = openBtn.dataset.key;
+  currentMonthKey.value = key;
+  screenMonthTitle.textContent = formatMonthLabel(key);
 
   loadPeriod();
+  showScreen("budget");
 });
 
-// --- UI ---
-function updateUI() {
-  incomeTotalEl.textContent = money(totalIncome());
-  spentEl.textContent = money(totalSpent());
+backBtn.addEventListener("click", () => {
+  renderDashboard();
+  showScreen("month");
+});
 
-  const base = budget > 0 ? budget : totalIncome();
-  const remaining = base - totalSpent();
-
-  remainingEl.textContent = money(remaining);
-  remainingEl.classList.toggle("negative", remaining < 0);
-
-  // income list
-  incomeListEl.innerHTML = "";
-  if (incomeList.length === 0) {
-    incomeEmptyMsg.style.display = "block";
-  } else {
-    incomeEmptyMsg.style.display = "none";
-    incomeList.forEach((inc, i) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${inc.source}</span>
-        <strong>${money(inc.amount)}</strong>
-        <button class="del-income" data-i="${i}">Delete</button>
-      `;
-      incomeListEl.appendChild(li);
-    });
-  }
-
-  // expense list
-  listEl.innerHTML = "";
-  if (expenses.length === 0) {
-    emptyMsg.style.display = "block";
-  } else {
-    emptyMsg.style.display = "none";
-    expenses.forEach((e, i) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${e.desc}</span>
-        <strong>${money(e.amount)}</strong>
-        <button class="del" data-i="${i}">Delete</button>
-      `;
-      listEl.appendChild(li);
-    });
-  }
-}
-
-// --- Events ---
-startInput.addEventListener("change", loadPeriod);
+// ── EVENTS: INCOME ──
 
 addIncomeBtn.addEventListener("click", () => {
-  const amt = parseMoney(incomeInput.value);
-  if (amt <= 0) return;
+  const amt = parseMoney(incomeAmountInput.value);
+  if (amt <= 0) return alert("Please enter a valid income amount.");
 
   incomeList.push({
-    source: incomeSourceInput.value || "Income",
+    source: incomeSourceInput.value.trim() || "Income",
     amount: amt
   });
 
-  incomeInput.value = "";
   incomeSourceInput.value = "";
+  incomeAmountInput.value = "";
+  incomeSourceInput.focus();
 
   savePeriod();
   updateUI();
 });
+
+// ── EVENTS: BUDGET ──
 
 applyBudgetBtn.addEventListener("click", () => {
-  budget = parseMoney(budgetInput.value);
+  const val = parseMoney(budgetInput.value);
+  budget = val;
+  budgetInput.value = val > 0 ? val.toFixed(2) : "";
   savePeriod();
   updateUI();
 });
+
+// ── EVENTS: EXPENSES ──
 
 addBtn.addEventListener("click", () => {
   const desc = descInput.value.trim();
-  const amt = parseMoney(amountInput.value);
-  if (!desc || amt <= 0) return;
+  const amt  = parseMoney(amountInput.value);
+  if (!desc) return alert("Please enter a description.");
+  if (amt <= 0) return alert("Please enter a valid amount.");
 
   expenses.push({ desc, amount: amt });
-
-  descInput.value = "";
+  descInput.value  = "";
   amountInput.value = "";
+  descInput.focus();
 
   savePeriod();
   updateUI();
 });
 
-listEl.addEventListener("click", e => {
-  const btn = e.target.closest(".del");
-  if (!btn) return;
-  expenses.splice(btn.dataset.i, 1);
-  savePeriod();
-  updateUI();
+// Support Enter key on expense form
+[descInput, amountInput].forEach(input => {
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") addBtn.click();
+  });
 });
 
-incomeListEl.addEventListener("click", e => {
-  const btn = e.target.closest(".del-income");
-  if (!btn) return;
-  incomeList.splice(btn.dataset.i, 1);
-  savePeriod();
-  updateUI();
+// Support Enter key on income form
+[incomeSourceInput, incomeAmountInput].forEach(input => {
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") addIncomeBtn.click();
+  });
+});
+
+// ── EVENTS: DELETE / CLEAR ──
+
+// Delegated delete for both income and expense lists
+[incomeListEl, listEl].forEach(el => {
+  el.addEventListener("click", e => {
+    const btn = e.target.closest(".item-delete");
+    if (!btn) return;
+    const type = btn.dataset.type;
+    const i    = parseInt(btn.dataset.i, 10);
+    if (type === "income")  incomeList.splice(i, 1);
+    if (type === "expense") expenses.splice(i, 1);
+    savePeriod();
+    updateUI();
+  });
 });
 
 clearBtn.addEventListener("click", () => {
-  if (!confirm("Clear all expenses?")) return;
+  if (!confirm("Clear all expenses for this month?")) return;
   expenses = [];
   savePeriod();
   updateUI();
 });
 
-// --- Init ---
-renderMonthDashboard();
+// ── INIT ──
+renderDashboard();

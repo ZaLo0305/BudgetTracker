@@ -5,102 +5,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Tracker</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- MONTH DASHBOARD SCREEN -->
+  <!-- ── MONTH DASHBOARD SCREEN ── -->
+  <div id="monthScreen" class="screen active">
+    <div class="container">
+      <div class="page-header">
+        <h1>Budget Tracker</h1>
+        <p>Select or create a month to get started.</p>
+      </div>
 
-  <div id="monthScreen" class="container">
-    <h1>Budget Tracker</h1>
-    <p class="subtitle">Select or create a month</p>
+      <div class="card">
+        <h2>New Month</h2>
+        <label for="newMonthPicker">Select Month</label>
+        <input type="month" id="newMonthPicker" />
+        <button class="btn btn-primary full-width" id="createMonthBtn" style="margin-top:12px;">+ Create Month</button>
+      </div>
 
-    <div class="card">
-      <label>Select month</label>
-      <input type="month" id="newMonthPicker">
-      <button id="createMonthBtn">Create Month</button>
-    </div>
-
-    <div class="card">
-      <h2>Your Months</h2>
-      <ul id="monthList"></ul>
+      <div class="card">
+        <div class="card-row">
+          <h2>Your Months</h2>
+          <button class="btn btn-ghost" onclick="window.open('view.html','_blank')">View All →</button>
+        </div>
+        <ul id="monthList" class="month-list"></ul>
+        <p id="noMonthsMsg" class="empty-msg">No months yet. Create one above.</p>
+      </div>
     </div>
   </div>
 
-  <!-- BUDGET SCREEN -->
+  <!-- ── BUDGET SCREEN ── -->
+  <div id="budgetScreen" class="screen">
+    <div class="container">
 
-  <div id="budgetScreen" class="container" style="display:none;">
-
-    <h1>Budget Tracker</h1>
-    <p class="subtitle">Track income, budget, and expenses.</p>
-
-    <div class="card">
-      <h2>Setup</h2>
-
-      <label for="incomeSource">Income Source</label>
-      <input id="incomeSource" type="text" placeholder="Paycheck, Cash" />
-
-      <label for="income">Amount</label>
-      <input id="income" type="text" placeholder="$500" />
-
-      <button id="addIncomeBtn">Add Income</button>
-
-      <label for="budget">Budget</label>
-      <input id="budget" type="text" placeholder="$250" />
-      <button id="applyBudgetBtn">Apply Budget</button>
-
-      <div class="summary">
-        <div>
-          <p>Income</p>
-          <h3 id="incomeTotal">$0.00</h3>
-        </div>
-        <div>
-          <p>Spent</p>
-          <h3 id="spent">$0.00</h3>
-        </div>
-        <div>
-          <p>Remaining</p>
-          <h3 id="remaining">$0.00</h3>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Add Expense</h2>
-
-      <label for="desc">Description</label>
-      <input id="desc" type="text" placeholder="Gas, Food, Coffee..." />
-
-      <label for="amount">Amount</label>
-      <input id="amount" type="text" placeholder="$20" />
-
-      <button id="addBtn">Add Expense</button>
-    </div>
-
-    <div class="card">
-      <h2>Income</h2>
-      <p id="incomeEmptyMsg" class="empty">No income yet.</p>
-      <ul id="incomeList"></ul>
-    </div>
-
-    <div class="card">
-      <div class="row">
-        <h2>Expenses</h2>
-        <button id="clearBtn" class="ghost">Clear All</button>
+      <div class="page-header">
+        <button class="btn btn-ghost back-btn" id="backBtn">← Back</button>
+        <h1 id="screenMonthTitle">Month</h1>
+        <p>Track your income, budget, and expenses.</p>
       </div>
 
-      <p id="emptyMsg" class="empty">No expenses yet.</p>
-      <ul id="list"></ul>
-    </div>
+      <!-- Summary Bar -->
+      <div class="summary-bar">
+        <div class="summary-item">
+          <span class="summary-label">Income</span>
+          <span class="summary-value" id="incomeTotal">$0.00</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-label">Budget</span>
+          <span class="summary-value" id="budgetDisplay">$0.00</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-label">Spent</span>
+          <span class="summary-value" id="spent">$0.00</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-label">Remaining</span>
+          <span class="summary-value" id="remaining">$0.00</span>
+        </div>
+      </div>
 
-    <div class="card">
-      <h2>Month</h2>
-      <input type="month" id="start">
-      <button onclick="window.open('view.html', '_blank')">View Saved Budgets</button>
-    </div>
+      <!-- Progress Bar -->
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+        <span id="progressLabel" class="progress-label">0% used</span>
+      </div>
 
+      <!-- Income -->
+      <div class="card">
+        <h2>Income</h2>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="incomeSource">Source</label>
+            <input type="text" id="incomeSource" placeholder="Paycheck, Tips…" />
+          </div>
+          <div class="input-group input-group--sm">
+            <label for="incomeAmount">Amount</label>
+            <input type="text" id="incomeAmount" placeholder="$500" />
+          </div>
+        </div>
+        <button class="btn btn-primary full-width" id="addIncomeBtn" style="margin-top:12px;">Add Income</button>
+        <ul id="incomeList" class="item-list" style="margin-top:14px;"></ul>
+        <p id="incomeEmptyMsg" class="empty-msg">No income added yet.</p>
+      </div>
+
+      <!-- Budget -->
+      <div class="card">
+        <h2>Set Budget</h2>
+        <p class="card-hint">Leave at $0 to use total income as your budget.</p>
+        <label for="budgetInput">Spending Limit</label>
+        <div class="input-row" style="align-items:flex-end; gap:10px;">
+          <input type="text" id="budgetInput" placeholder="$1,000" style="flex:1;" />
+          <button class="btn btn-secondary" id="applyBudgetBtn">Apply</button>
+        </div>
+      </div>
+
+      <!-- Add Expense -->
+      <div class="card">
+        <h2>Add Expense</h2>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="desc">Description</label>
+            <input type="text" id="desc" placeholder="Gas, Food, Coffee…" />
+          </div>
+          <div class="input-group input-group--sm">
+            <label for="amount">Amount</label>
+            <input type="text" id="amount" placeholder="$20" />
+          </div>
+        </div>
+        <button class="btn btn-primary full-width" id="addBtn" style="margin-top:12px;">Add Expense</button>
+      </div>
+
+      <!-- Expense List -->
+      <div class="card">
+        <div class="card-row">
+          <h2>Expenses</h2>
+          <button class="btn btn-danger-ghost" id="clearBtn">Clear All</button>
+        </div>
+        <ul id="list" class="item-list"></ul>
+        <p id="emptyMsg" class="empty-msg">No expenses yet.</p>
+      </div>
+
+      <!-- Hidden month key -->
+      <input type="hidden" id="currentMonthKey" />
+
+    </div>
   </div>
 
   <script src="script.js"></script>
-
 </body>
 </html>
